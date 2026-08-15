@@ -16,13 +16,13 @@ The full working report is in `perseid-meteor-dashboard.pbix` at the repo root, 
 
 ## Customizing
 
-**Changing the date range** — edit the `Dates` list at the top of `power-query/PerseidPeakData.pq`:
+**Changing the date range** - edit the `Dates` list at the top of `power-query/PerseidPeakData.pq`:
 ```
 Dates = {#date(2026,8,11), #date(2026,8,12), #date(2026,8,13)},
 ```
 Add, remove, or change dates as needed. Any date GMN hasn't published yet is skipped silently rather than erroring (see the note in that file). To pull a different meteor shower entirely, change the `"PER"` IAU code passed into `fnGetMeteorData` to the shower you want (e.g. `"GEM"` for the Geminids) - the function itself doesn't need to change.
 
-**Changing the constellation** — the chart in `deneb/perseus-constellation.json` is hand-built for Perseus specifically; there's no dynamic swap built in. To chart a different constellation, you'd need to replace the `values` arrays (both the star positions/magnitudes and the connecting line pairs) with data for the constellation you want. See `docs/data-sources.md` for where the Perseus star positions and official line figure came from - the same two sources (Wikipedia/SIMBAD for star coordinates, the IAU stick figure data from `dcf21/star-charter`) cover all 88 constellations, so the same approach works for any of them.
+**Changing the constellation** - the chart in `deneb/perseus-constellation.json` is hand-built for Perseus specifically; there's no dynamic swap built in. To chart a different constellation, you'd need to replace the `values` arrays (both the star positions/magnitudes and the connecting line pairs) with data for the constellation you want. See `docs/data-sources.md` for where the Perseus star positions and official line figure came from - the same two sources (Wikipedia/SIMBAD for star coordinates, the IAU stick figure data from `dcf21/star-charter`) cover all 88 constellations, so the same approach works for any of them.
 
 ## What's in this repo
 

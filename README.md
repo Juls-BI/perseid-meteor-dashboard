@@ -10,7 +10,7 @@ A Power BI dashboard built around the Perseid meteor shower's 2026 peak, using l
 
 ## Preview
 
-![Dashboard preview](assets/dashboard-screenshot.png)
+![Dashboard preview](assets/PerseidMeteorShower2026.png)
 
 The full working report is in `perseid-meteor-dashboard.pbix` at the repo root, once added - open it directly in Power BI Desktop to explore the visuals, queries, and measures firsthand.
 

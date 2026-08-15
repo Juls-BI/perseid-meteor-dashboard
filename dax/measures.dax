@@ -1,0 +1,68 @@
+// DAX measures used across the dashboard.
+// Sighting Count and Avg Meteor Rate live on PerseidPeakData.
+// Top Station / Top Station Count / Top Country / Top Country Count live on StationSightings.
+
+Sighting Count = COUNTROWS(PerseidPeakData)
+
+Avg Meteor Rate =
+DIVIDE(
+    COUNTROWS(PerseidPeakData),
+    DISTINCTCOUNT(PerseidPeakData[HourStart])
+)
+
+Peak Hour =
+VAR HourCounts =
+    ADDCOLUMNS(
+        VALUES(PerseidPeakData[HourStart]),
+        "@Count", CALCULATE(COUNTROWS(PerseidPeakData))
+    )
+VAR RankedTop =
+    TOPN(1, HourCounts, [@Count], DESC)
+VAR TopHour =
+    MAXX(RankedTop, PerseidPeakData[HourStart])
+RETURN
+    FORMAT(TopHour, "HH:mm ""UTC,"" dd MMM")
+
+Top Station =
+VAR StationCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[Station]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, StationCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, StationSightings[Station])
+
+Top Station Count =
+VAR StationCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[Station]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, StationCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, [@Count])
+
+Top Country =
+VAR CountryCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[CountryCode]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, CountryCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, StationSightings[CountryCode])
+
+Top Country Count =
+VAR CountryCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[CountryCode]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, CountryCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, [@Count])

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": "container",
+  "height": "container",
+  "autosize": {"type": "fit", "contains": "padding"},
+  "background": "#141738",
+  "config": {
+    "view": {"stroke": null}
+  },
+  "data": {
+    "values": [
+      {"star": "Mirfak (α)", "ra": 51.081, "dec": 49.861, "mag": 1.82},
+      {"star": "Algol (β)", "ra": 47.042, "dec": 40.956, "mag": 2.12},
+      {"star": "γ Per", "ra": 46.199, "dec": 53.507, "mag": 2.93},
+      {"star": "δ Per", "ra": 55.731, "dec": 47.788, "mag": 3.01},
+      {"star": "ε Per", "ra": 59.464, "dec": 40.010, "mag": 2.88},
+      {"star": "ζ Per", "ra": 58.533, "dec": 31.884, "mag": 2.86},
+      {"star": "η Per", "ra": 42.674, "dec": 55.896, "mag": 3.79},
+      {"star": "θ Per", "ra": 41.050, "dec": 49.228, "mag": 4.11},
+      {"star": "ι Per", "ra": 47.267, "dec": 49.613, "mag": 4.06},
+      {"star": "κ Per", "ra": 47.374, "dec": 44.858, "mag": 3.80},
+      {"star": "λ Per", "ra": 61.646, "dec": 50.351, "mag": 4.29},
+      {"star": "μ Per", "ra": 63.724, "dec": 48.409, "mag": 4.16},
+      {"star": "ξ Per (Menkib)", "ra": 59.741, "dec": 35.791, "mag": 4.04},
+      {"star": "ο Per (Atik)", "ra": 56.080, "dec": 32.288, "mag": 3.83},
+      {"star": "ρ Per", "ra": 46.294, "dec": 38.840, "mag": 3.3},
+      {"star": "τ Per", "ra": 41.314, "dec": 52.762, "mag": 4.0},
+      {"star": "φ Per", "ra": 25.915, "dec": 50.689, "mag": 4.06}
+    ]
+  },
+  "layer": [
+    {
+      "data": {
+        "values": [
+          {"ra1": 56.080, "dec1": 32.288, "ra2": 58.533, "dec2": 31.884},
+          {"ra1": 58.533, "dec1": 31.884, "ra2": 59.741, "dec2": 35.791},
+          {"ra1": 59.741, "dec1": 35.791, "ra2": 59.464, "dec2": 40.010},
+          {"ra1": 59.464, "dec1": 40.010, "ra2": 47.042, "dec2": 40.956},
+          {"ra1": 47.042, "dec1": 40.956, "ra2": 46.294, "dec2": 38.840},
+          {"ra1": 47.042, "dec1": 40.956, "ra2": 47.374, "dec2": 44.858},
+          {"ra1": 47.374, "dec1": 44.858, "ra2": 47.267, "dec2": 49.613},
+          {"ra1": 47.267, "dec1": 49.613, "ra2": 41.050, "dec2": 49.228},
+          {"ra1": 41.050, "dec1": 49.228, "ra2": 25.915, "dec2": 50.689},
+          {"ra1": 59.464, "dec1": 40.010, "ra2": 55.731, "dec2": 47.788},
+          {"ra1": 61.646, "dec1": 50.351, "ra2": 63.724, "dec2": 48.409},
+          {"ra1": 63.724, "dec1": 48.409, "ra2": 55.731, "dec2": 47.788},
+          {"ra1": 55.731, "dec1": 47.788, "ra2": 51.081, "dec2": 49.861},
+          {"ra1": 51.081, "dec1": 49.861, "ra2": 47.267, "dec2": 49.613},
+          {"ra1": 47.267, "dec1": 49.613, "ra2": 41.314, "dec2": 52.762},
+          {"ra1": 41.314, "dec1": 52.762, "ra2": 42.674, "dec2": 55.896},
+          {"ra1": 42.674, "dec1": 55.896, "ra2": 46.199, "dec2": 53.507},
+          {"ra1": 46.199, "dec1": 53.507, "ra2": 51.081, "dec2": 49.861}
+        ]
+      },
+      "mark": {"type": "rule", "color": "#EB895F", "strokeWidth": 4},
+      "encoding": {
+        "x": {"field": "ra1", "type": "quantitative", "scale": {"reverse": true, "domain": [22, 66]}, "axis": null},
+        "y": {"field": "dec1", "type": "quantitative", "scale": {"domain": [28, 60]}, "axis": null},
+        "x2": {"field": "ra2"},
+        "y2": {"field": "dec2"}
+      }
+    },
+    {
+      "mark": {"type": "point", "filled": true, "color": "#ffffff", "opacity": 0.95},
+      "encoding": {
+        "x": {"field": "ra", "type": "quantitative", "scale": {"reverse": true, "domain": [22, 66]}, "axis": null},
+        "y": {"field": "dec", "type": "quantitative", "scale": {"domain": [28, 60]}, "axis": null},
+        "size": {
+          "field": "mag", "type": "quantitative",
+          "scale": {"domain": [1.5, 4.5], "range": [700, 100]},
+          "legend": null
+        }
+      }
+    },
+    {
+      "mark": {"type": "text", "dy": -30, "color": "#e8ecff", "fontSize": 30, "fontWeight": "bold"},
+      "encoding": {
+        "x": {"field": "ra", "type": "quantitative", "scale": {"reverse": true, "domain": [22, 66]}, "axis": null},
+        "y": {"field": "dec", "type": "quantitative", "scale": {"domain": [28, 60]}, "axis": null},
+        "text": {"field": "star", "type": "nominal"}
+      }
+    }
+  ]
+}

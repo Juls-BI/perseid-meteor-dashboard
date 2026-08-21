@@ -12,7 +12,7 @@ A Power BI dashboard built around the Perseid meteor shower's 2026 peak, using l
 
 ![Dashboard preview](assets/PerseidMeteorShower2026.png)
 
-The full working report is `perseid-meteor-dashboard.pbix` (added once updated) - open it directly in Power BI Desktop to explore the visuals, queries, and measures firsthand.
+The full working report is `assets/perseid-meteor-dashboard.pbix` - open it directly in Power BI Desktop to explore the visuals, queries, and measures firsthand.
 
 ## Opening this in VS Code
 
@@ -24,7 +24,7 @@ The `model/tmdl/` folder is the actual semantic model, exported in TMDL format -
 - `dax/` - all measures, plain text, with the relationship logic summarised at the top of the file
 - `model/tmdl/` - the real exported semantic model (TMDL format)
 - `deneb/` - the Vega-Lite spec for the Perseus constellation chart
-- `assets/` - dashboard screenshot and background image
+- `assets/` - dashboard screenshot, background image, and the working `.pbix`
 - `docs/` - data source references, and a dedicated write-up of the table relationships and why TREATAS is used ([`relationships-and-treatas.md`](docs/relationships-and-treatas.md))
 
 ## How it works

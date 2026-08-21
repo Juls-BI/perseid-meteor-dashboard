@@ -12,41 +12,49 @@ A Power BI dashboard built around the Perseid meteor shower's 2026 peak, using l
 
 ![Dashboard preview](assets/PerseidMeteorShower2026.png)
 
-The full working report is in `perseid-meteor-dashboard.pbix` at the repo root, once added - open it directly in Power BI Desktop to explore the visuals, queries, and measures firsthand.
+The full working report is `perseid-meteor-dashboard.pbix` (added once updated) - open it directly in Power BI Desktop to explore the visuals, queries, and measures firsthand.
 
-## Customizing
+## Opening this in VS Code
 
-**Changing the date range** - edit the `Dates` list at the top of `power-query/PerseidPeakData.pq`:
-```
-Dates = {#date(2026,8,11), #date(2026,8,12), #date(2026,8,13)},
-```
-Add, remove, or change dates as needed. Any date GMN hasn't published yet is skipped silently rather than erroring (see the note in that file). To pull a different meteor shower entirely, change the `"PER"` IAU code passed into `fnGetMeteorData` to the shower you want (e.g. `"GEM"` for the Geminids) - the function itself doesn't need to change.
-
-**Changing the constellation** - the chart in `deneb/perseus-constellation.json` is hand-built for Perseus specifically; there's no dynamic swap built in. To chart a different constellation, you'd need to replace the `values` arrays (both the star positions/magnitudes and the connecting line pairs) with data for the constellation you want. See `docs/data-sources.md` for where the Perseus star positions and official line figure came from - the same two sources (Wikipedia/SIMBAD for star coordinates, the IAU stick figure data from `dcf21/star-charter`) cover all 88 constellations, so the same approach works for any of them.
+The `model/tmdl/` folder is the actual semantic model, exported in TMDL format - open the repo folder directly in VS Code (with the [Power BI extension](https://marketplace.visualstudio.com/items?itemName=PowerBI.vscode-powerbi) or the Fabric/TMDL tooling of your choice) to browse or edit the real model source. The `power-query/` and `dax/` folders hold the same logic as plain `.pq`/`.dax` text files, which are easier to skim on GitHub without needing any tooling at all.
 
 ## What's in this repo
 
-- `power-query/` - the custom function (`fnGetMeteorData`) that pulls daily trajectory files live from GMN, plus the queries built on top of it (`PerseidPeakData`, `StationSightings`, `CountryLookup`)
-- `dax/` - the DAX measures for sighting counts, top station/country, average meteor rate, and peak hour
-- `deneb/` - the Vega-Lite spec for the Perseus constellation chart, with star positions and connecting lines sourced properly (see `docs/data-sources.md`)
-- `assets/` - the background image used behind the report title
-- `docs/` - data source references and notes
+- `power-query/` - `fnGetMeteorData` (the custom function pulling live data), `PerseidPeakData`, `StationSightings`, and `CountryLookup` - plain text
+- `dax/` - all measures, plain text, with the relationship logic summarised at the top of the file
+- `model/tmdl/` - the real exported semantic model (TMDL format)
+- `deneb/` - the Vega-Lite spec for the Perseus constellation chart
+- `assets/` - dashboard screenshot and background image
+- `docs/` - data source references, and a dedicated write-up of the table relationships and why TREATAS is used ([`relationships-and-treatas.md`](docs/relationships-and-treatas.md))
 
 ## How it works
 
 `fnGetMeteorData(EventDate, IAUFilter)` takes a date and an optional IAU shower code (e.g. `"PER"` for Perseids), searches GMN's daily file directory for the matching file (filenames embed a solar-longitude range rather than being purely date-based, so this can't be guessed directly), downloads it, and returns a typed table of that night's meteor trajectories.
 
-`PerseidPeakData` invokes that function across the shower's peak window and adds two derived columns (`InvertedMag`, for sizing map circles so brighter fireballs render bigger; `HourStart`, for grouping by hour). `StationSightings` unpivots the comma-separated list of detecting stations into one row per station per meteor, needed to rank stations and countries by sighting count.
+`PerseidPeakData` invokes that function across the shower's peak window and adds two derived columns (`InvertedMag`, for sizing map circles so brighter fireballs render bigger; `HourStart`, for grouping by hour). `StationSightings` unpivots the comma-separated list of detecting stations into one row per station per meteor - needed to rank stations and countries by sighting count - and merges in a readable country name via `CountryLookup`.
+
+The two tables relate on `Identifier` (`StationSightings` many-to-one to `PerseidPeakData`, single-direction). Some measures need `TREATAS` to read correctly when filtered by country; others don't. **The full reasoning is in [`docs/relationships-and-treatas.md`](docs/relationships-and-treatas.md)** - worth reading before changing any measure that touches both tables.
 
 The constellation chart is a hand-built Vega-Lite spec rendered through Power BI's Deneb visual - stars as sized points (brighter = bigger), connected by lines matching the official IAU constellation figure.
 
 The geographic map uses Icon Map Pro (a licensed AppSource visual) rather than Deneb, since reliably rendering accurate country outlines inside Power BI's Deneb sandbox wasn't achievable without external map data, which the sandbox blocks.
+
+## Customizing
+
+**Changing the date range** - edit the `Dates` list at the top of `power-query/PerseidPeakData.pq`. Any date GMN hasn't published yet is skipped silently rather than erroring. To pull a different meteor shower entirely, change the `"PER"` IAU code passed into `fnGetMeteorData` (e.g. `"GEM"` for the Geminids) - the function itself doesn't need to change.
+
+**Changing the constellation** - `deneb/perseus-constellation.json` is hand-built for Perseus specifically; there's no dynamic swap. To chart a different constellation, replace the star positions and connecting lines with data for the constellation you want - see `docs/data-sources.md` for where the Perseus data came from; the same two sources cover all 88 constellations.
 
 ## Known limitations
 
 - GMN's daily files are provisional and get reprocessed over time - see `docs/data-sources.md`.
 - The Icon Map Pro basemap can't be recoloured to exactly match the report's navy/ember palette, since it's provider tile imagery, not something styleable to an arbitrary hex value.
 - Two faint connector stars in the official constellation figure don't have individual names and were simplified out - see `docs/data-sources.md`.
+- `Top Country` and `Top Country Count` group by two different (but equivalent) fields - see `docs/relationships-and-treatas.md`.
+
+## License
+
+MIT - see `LICENSE`.
 
 ## Built
 

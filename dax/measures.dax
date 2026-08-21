@@ -1,11 +1,7 @@
 // DAX measures used across the dashboard. Table split and relationship logic are explained fully in docs/relationships-and-treatas.md - short version below.
-//
 // PerseidPeakData - one row per meteor. StationSightings - one row per station-per-meteor (unpivoted from PerseidPeakData[Stations]), includes Country.
-//
 // Relationship: StationSightings -> PerseidPeakData, many-to-one, single direction (the default). Filters made on PerseidPeakData flow down to StationSightings automatically. Filters made on StationSightings (e.g. a Country slicer) do NOT flow back up to PerseidPeakData on their own.
-//
 // Sighting Count, Top Station, Top Station Count, Top Country and Top Country Count all live entirely on StationSightings, so a Country slicer filters them correctly with no extra work.
-//
 // Avg Meteor Rate, Peak Hour, and Distinct Meteor Count live on PerseidPeakData - a different table from Country - so they use TREATAS to apply the current StationSightings filter context onto PerseidPeakData directly, rather than making the relationship bidirectional. See docs/relationships-and-treatas.md for the full reasoning.
 
 Sighting Count = COUNTROWS(StationSightings)

@@ -1,27 +1,15 @@
-// DAX measures used across the dashboard.
-// Sighting Count and Avg Meteor Rate live on PerseidPeakData.
-// Top Station / Top Station Count / Top Country / Top Country Count live on StationSightings.
+// DAX measures used across the dashboard. Table split and relationship logic are explained fully in docs/relationships-and-treatas.md - short version below.
+//
+// PerseidPeakData - one row per meteor. StationSightings - one row per station-per-meteor (unpivoted from PerseidPeakData[Stations]), includes Country.
+//
+// Relationship: StationSightings -> PerseidPeakData, many-to-one, single direction (the default). Filters made on PerseidPeakData flow down to StationSightings automatically. Filters made on StationSightings (e.g. a Country slicer) do NOT flow back up to PerseidPeakData on their own.
+//
+// Sighting Count, Top Station, Top Station Count, Top Country and Top Country Count all live entirely on StationSightings, so a Country slicer filters them correctly with no extra work.
+//
+// Avg Meteor Rate, Peak Hour, and Distinct Meteor Count live on PerseidPeakData - a different table from Country - so they use TREATAS to apply the current StationSightings filter context onto PerseidPeakData directly, rather than making the relationship bidirectional. See docs/relationships-and-treatas.md for the full reasoning.
 
-Sighting Count = COUNTROWS(PerseidPeakData)
-
-Avg Meteor Rate =
-DIVIDE(
-    COUNTROWS(PerseidPeakData),
-    DISTINCTCOUNT(PerseidPeakData[HourStart])
-)
-
-Peak Hour =
-VAR HourCounts =
-    ADDCOLUMNS(
-        VALUES(PerseidPeakData[HourStart]),
-        "@Count", CALCULATE(COUNTROWS(PerseidPeakData))
-    )
-VAR RankedTop =
-    TOPN(1, HourCounts, [@Count], DESC)
-VAR TopHour =
-    MAXX(RankedTop, PerseidPeakData[HourStart])
-RETURN
-    FORMAT(TopHour, "HH:mm ""UTC,"" dd MMM")
+Sighting Count = COUNTROWS(StationSightings)
+// Total sightings: one meteor seen by 3 stations counts as 3 sightings, by design.
 
 Top Station =
 VAR StationCounts =
@@ -48,13 +36,13 @@ RETURN
 Top Country =
 VAR CountryCounts =
     ADDCOLUMNS(
-        VALUES(StationSightings[CountryCode]),
+        VALUES(StationSightings[Country]),
         "@Count", CALCULATE([Sighting Count])
     )
 VAR RankedTop =
     TOPN(1, CountryCounts, [@Count], DESC)
 RETURN
-    MAXX(RankedTop, StationSightings[CountryCode])
+    MAXX(RankedTop, StationSightings[Country])
 
 Top Country Count =
 VAR CountryCounts =
@@ -66,3 +54,136 @@ VAR RankedTop =
     TOPN(1, CountryCounts, [@Count], DESC)
 RETURN
     MAXX(RankedTop, [@Count])
+
+Avg Meteor Rate =
+CALCULATE(
+    DIVIDE(
+        COUNTROWS(PerseidPeakData),
+        DISTINCTCOUNT(PerseidPeakData[HourStart])
+    ),
+    TREATAS(
+        VALUES(StationSightings[Identifier]),
+        PerseidPeakData[Identifier]
+    )
+)
+
+Peak Hour =
+CALCULATE(
+    VAR HourCounts =
+        ADDCOLUMNS(
+            VALUES(PerseidPeakData[HourStart]),
+            "@Count", CALCULATE(COUNTROWS(PerseidPeakData))
+        )
+    VAR RankedTop =
+        TOPN(1, HourCounts, [@Count], DESC)
+    VAR TopHour =
+        MAXX(RankedTop, PerseidPeakData[HourStart])
+    RETURN
+        FORMAT(TopHour, "HH:mm ""UTC,"" dd MMM"),
+    TREATAS(
+        VALUES(StationSightings[Identifier]),
+        PerseidPeakData[Identifier]
+    )
+)
+
+Distinct Meteor Count =
+CALCULATE(
+    DISTINCTCOUNT(PerseidPeakData[Identifier]),
+    TREATAS(
+        VALUES(StationSightings[Identifier]),
+        PerseidPeakData[Identifier]
+    )
+)
+
+// Meteor Weight = 1 -- hidden helper measure, not currently used by any visual (an earlier attempt at a heatmap layer on Icon Map Pro that wasn't pursued further; left in the model but hidden rather than deleted).
+
+Sighting Count = COUNTROWS(StationSightings)
+// Total sightings: one meteor seen by 3 stations counts as 3 sightings, by design.
+
+Top Station =
+VAR StationCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[Station]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, StationCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, StationSightings[Station])
+
+Top Station Count =
+VAR StationCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[Station]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, StationCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, [@Count])
+
+Top Country =
+VAR CountryCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[Country]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, CountryCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, StationSightings[Country])
+
+Top Country Count =
+VAR CountryCounts =
+    ADDCOLUMNS(
+        VALUES(StationSightings[CountryCode]),
+        "@Count", CALCULATE([Sighting Count])
+    )
+VAR RankedTop =
+    TOPN(1, CountryCounts, [@Count], DESC)
+RETURN
+    MAXX(RankedTop, [@Count])
+
+Avg Meteor Rate =
+CALCULATE(
+    DIVIDE(
+        COUNTROWS(PerseidPeakData),
+        DISTINCTCOUNT(PerseidPeakData[HourStart])
+    ),
+    TREATAS(
+        VALUES(StationSightings[Identifier]),
+        PerseidPeakData[Identifier]
+    )
+)
+
+Peak Hour =
+CALCULATE(
+    VAR HourCounts =
+        ADDCOLUMNS(
+            VALUES(PerseidPeakData[HourStart]),
+            "@Count", CALCULATE(COUNTROWS(PerseidPeakData))
+        )
+    VAR RankedTop =
+        TOPN(1, HourCounts, [@Count], DESC)
+    VAR TopHour =
+        MAXX(RankedTop, PerseidPeakData[HourStart])
+    RETURN
+        FORMAT(TopHour, "HH:mm ""UTC,"" dd MMM"),
+    TREATAS(
+        VALUES(StationSightings[Identifier]),
+        PerseidPeakData[Identifier]
+    )
+)
+
+Distinct Meteor Count =
+CALCULATE(
+    DISTINCTCOUNT(PerseidPeakData[Identifier]),
+    TREATAS(
+        VALUES(StationSightings[Identifier]),
+        PerseidPeakData[Identifier]
+    )
+)
+
+// Meteor Weight = 1  -- hidden helper measure, not currently used by any visual
+// (an earlier attempt at a heatmap layer on Icon Map Pro that wasn't pursued
+// further; left in the model but hidden rather than deleted).
